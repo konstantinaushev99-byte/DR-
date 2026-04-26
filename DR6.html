@@ -1,0 +1,651 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, maximum-scale=2.0, minimum-scale=0.5">
+    <title>С Днём Рождения! 💖</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            transition: background 0.6s ease;
+            padding: 1rem;
+        }
+
+        /* ── таймер ── */
+        #countdown-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .countdown-number {
+            font-size: 15vw;
+            font-weight: 700;
+            color: #d81b60;
+            text-shadow: 0 10px 30px rgba(216, 27, 96, 0.3);
+            animation: pulse 0.8s ease infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(0.8);
+                opacity: 0.4;
+            }
+
+            50% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(0.8);
+                opacity: 0.4;
+            }
+        }
+
+        .hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        /* ── сердце-кнопка ── */
+        #heart-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 90;
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .heart {
+            position: relative;
+            width: min(30vw, 160px);
+            height: min(30vw, 160px);
+            background-color: #e91e63;
+            transform: rotate(-45deg);
+            cursor: pointer;
+            animation: heartbeat 1.2s ease infinite;
+            box-shadow: 0 20px 40px rgba(233, 30, 99, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+            .heart::before,
+            .heart::after {
+                content: "";
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                background-color: #e91e63;
+                border-radius: 50%;
+            }
+
+            .heart::before {
+                top: -50%;
+                left: 0;
+            }
+
+            .heart::after {
+                top: 0;
+                left: 50%;
+            }
+
+            .heart:hover {
+                transform: rotate(-45deg) scale(1.05);
+            }
+
+        @keyframes heartbeat {
+            0% {
+                transform: rotate(-45deg) scale(1);
+            }
+
+            25% {
+                transform: rotate(-45deg) scale(1.1);
+            }
+
+            50% {
+                transform: rotate(-45deg) scale(1);
+            }
+
+            75% {
+                transform: rotate(-45deg) scale(1.1);
+            }
+
+            100% {
+                transform: rotate(-45deg) scale(1);
+            }
+        }
+
+        /* ── открытка ── */
+        #card-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 110;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+            #card-overlay.visible {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        .wishes-text {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            color: #fff5f5;
+            font-size: clamp(1.2rem, 5vw, 2rem);
+            font-weight: 400;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.6), 0 0 10px rgba(255,192,203,0.5);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            padding: 0 1rem;
+            max-width: 90%;
+            letter-spacing: 0.5px;
+            animation: textFade 0.6s ease;
+            transition: opacity 0.4s ease;
+        }
+
+        @keyframes textFade {
+            0% {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-container {
+            position: relative;
+            width: 90%;
+            max-width: 500px;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1.2rem;
+            background: #fce4ec;
+        }
+
+            .card-header span {
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: #880e4f;
+            }
+
+        .close-card-btn {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #880e4f;
+            line-height: 1;
+            transition: transform 0.2s;
+        }
+
+            .close-card-btn:hover {
+                transform: scale(1.2);
+            }
+
+        .slider {
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            background: #fff;
+        }
+
+        .slide {
+            flex: 0 0 100%;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            min-height: 280px;
+            background: #fff;
+        }
+
+        .photo-area {
+            width: 100%;
+            max-width: 260px;
+            aspect-ratio: 1 / 1;
+            background: #f8bbd0;
+            border-radius: 24px;
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .slide .photo-label {
+            /* скрыта, т.к. загрузка убрана */
+            display: none;
+        }
+
+        .nav-arrows {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            background: #fce4ec;
+        }
+
+            .nav-arrows button {
+                background: #fff;
+                border: none;
+                border-radius: 50%;
+                width: 36px;
+                height: 36px;
+                font-size: 1.3rem;
+                box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                cursor: pointer;
+                transition: 0.2s;
+            }
+
+                .nav-arrows button:hover {
+                    background: #f8bbd0;
+                }
+
+        /* ── финальное сердце-коллаж из маленьких сердечек ── */
+        #photo-heart {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 80;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            pointer-events: none;
+        }
+
+            #photo-heart.revealed {
+                opacity: 1;
+                visibility: visible;
+            }
+
+        .heart-collage {
+            position: relative;
+            width: min(80vmin, 500px);
+            height: min(80vmin, 500px);
+            animation: heartFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes heartFloat {
+            0%, 100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.03);
+            }
+        }
+
+        .collage-item {
+            position: absolute;
+            background-size: cover;
+            background-position: center;
+            clip-path: url(#heartShape);
+            opacity: 0;
+            transform: scale(0) rotate(0deg);
+            transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+            .collage-item.assembled {
+                opacity: 1;
+                transform: scale(1) rotate(0deg);
+            }
+
+        /* музыкальная кнопка */
+        .music-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 200;
+            background: white;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            border: none;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
+        }
+
+            .music-toggle:hover {
+                background: #f8bbd0;
+            }
+    </style>
+</head>
+<body>
+
+    <!-- SVG-шаблон для формы маленького сердца (clip-path) -->
+    <svg width="0" height="0" style="position: absolute;">
+        <defs>
+            <clipPath id="heartShape" clipPathUnits="objectBoundingBox">
+                <path d="M0.5,1 C0.5,1 0,0.7 0,0.4 C0,0.15 0.2,0 0.4,0 C0.55,0 0.5,0.2 0.5,0.2 C0.5,0.2 0.45,0 0.6,0 C0.8,0 1,0.15 1,0.4 C1,0.7 0.5,1 0.5,1 Z" />
+            </clipPath>
+        </defs>
+    </svg>
+
+    <!-- Экран отсчёта -->
+    <div id="countdown-screen">
+        <div class="countdown-number" id="countdown-number">3</div>
+    </div>
+
+    <!-- Сердце для нажатия -->
+    <div id="heart-screen" class="hidden">
+        <div class="heart" id="heart"></div>
+    </div>
+
+    <!-- Открытка -->
+    <div id="card-overlay">
+        <div class="wishes-text" id="dynamic-wish">
+            С днём рождения, моя любимая подруга! 💐
+        </div>
+        <div class="card-container">
+            <div class="card-header">
+                <span>🎂 Открытка</span>
+                <button class="close-card-btn" id="close-card-btn">✕</button>
+            </div>
+            <div class="slider" id="slider">
+                <div class="slide" data-index="0">
+                    <div class="photo-area" id="photo-area-0"></div>
+                </div>
+                <div class="slide" data-index="1">
+                    <div class="photo-area" id="photo-area-1"></div>
+                </div>
+                <div class="slide" data-index="2">
+                    <div class="photo-area" id="photo-area-2"></div>
+                </div>
+                <div class="slide" data-index="3">
+                    <div class="photo-area" id="photo-area-3"></div>
+                </div>
+            </div>
+            <div class="nav-arrows">
+                <button id="prev-slide">←</button>
+                <button id="next-slide">→</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Финальное сердце-коллаж из маленьких сердечек -->
+    <div id="photo-heart">
+        <div class="heart-collage" id="heart-collage"></div>
+    </div>
+
+    <!-- Кнопка музыки -->
+    <button class="music-toggle" id="music-toggle" style="display: none;">🎵</button>
+
+    <!-- Аудио (замени src на свою мелодию) -->
+    <audio id="bg-music" loop preload="auto">
+        <source src="https://files.catbox.moe/l6q8j7.mp3" type="audio/mpeg">
+        Ваш браузер не поддерживает аудио.
+    </audio>
+
+    <script>
+    (function() {
+      // элементы DOM
+      const countdownScreen = document.getElementById('countdown-screen');
+      const countdownNumber = document.getElementById('countdown-number');
+      const heartScreen = document.getElementById('heart-screen');
+      const heart = document.getElementById('heart');
+      const cardOverlay = document.getElementById('card-overlay');
+      const closeCardBtn = document.getElementById('close-card-btn');
+      const slider = document.getElementById('slider');
+      const dynamicWish = document.getElementById('dynamic-wish');
+      const photoAreas = [
+        document.getElementById('photo-area-0'),
+        document.getElementById('photo-area-1'),
+        document.getElementById('photo-area-2'),
+        document.getElementById('photo-area-3')
+      ];
+      const prevBtn = document.getElementById('prev-slide');
+      const nextBtn = document.getElementById('next-slide');
+      const photoHeart = document.getElementById('photo-heart');
+      const heartCollage = document.getElementById('heart-collage');
+      const musicToggle = document.getElementById('music-toggle');
+      const bgMusic = document.getElementById('bg-music');
+
+      // Дефолтные фото для открытки (замени на свои, если нужно)
+      const defaultCardPhotos = [
+        'https://i.imgur.com/gphtEEy.png',
+        'https://picsum.photos/id/102/400/400',
+        'https://picsum.photos/id/104/400/400',
+        'https://picsum.photos/id/106/400/400'
+      ];
+
+      // Устанавливаем фоны по умолчанию
+      photoAreas.forEach((area, i) => {
+        area.style.backgroundImage = `url(${defaultCardPhotos[i]})`;
+      });
+
+      // пожелания для слайдов
+      const wishes = [
+        "Ты — свет, который делает этот мир теплее. Сияй всегда! ✨",
+        "Пусть каждый миг будет наполнен смехом, радостью и любовью. 💖",
+        "Оставайся такой же удивительной, смелой и вдохновляющей. 🌸",
+        "С днём рождения! Ты заслуживаешь самого прекрасного. 🎂"
+      ];
+
+      let musicStarted = false;
+
+      // ---- 1) Обратный отсчёт ----
+      let count = 3;
+      countdownNumber.textContent = count;
+      function updateCountdown() {
+        if (count > 1) {
+          count--;
+          countdownNumber.textContent = count;
+          setTimeout(updateCountdown, 1000);
+        } else {
+          countdownNumber.textContent = '1';
+          setTimeout(() => {
+            countdownScreen.classList.add('hidden');
+            heartScreen.classList.remove('hidden');
+          }, 800);
+        }
+      }
+      setTimeout(updateCountdown, 1000);
+
+      // ---- 2) Клик на сердце-кнопку ----
+      heart.addEventListener('click', () => {
+        if (!musicStarted) {
+          bgMusic.play().then(() => {
+            musicStarted = true;
+            musicToggle.style.display = 'flex';
+            musicToggle.textContent = '🔊';
+          }).catch(() => {
+            musicToggle.style.display = 'flex';
+            musicToggle.textContent = '🔇';
+          });
+        }
+        heartScreen.classList.add('hidden');
+        cardOverlay.classList.add('visible');
+        updateWishText(0);
+      });
+
+      // ---- 3) Листание открытки и смена пожелания ----
+      function getCurrentSlideIndex() {
+        const slideWidth = slider.clientWidth;
+        return Math.round(slider.scrollLeft / slideWidth);
+      }
+
+      function updateWishText(index) {
+        if (index >= 0 && index < wishes.length) {
+          dynamicWish.textContent = wishes[index];
+          dynamicWish.style.animation = 'none';
+          dynamicWish.offsetHeight; // reflow
+          dynamicWish.style.animation = 'textFade 0.6s ease';
+        }
+      }
+
+      slider.addEventListener('scroll', () => {
+        const idx = getCurrentSlideIndex();
+        updateWishText(idx);
+      });
+
+      function scrollToSlide(index) {
+        const slideWidth = slider.clientWidth;
+        slider.scrollTo({ left: index * slideWidth, behavior: 'smooth' });
+      }
+
+      prevBtn.addEventListener('click', () => {
+        const current = getCurrentSlideIndex();
+        const newIndex = Math.max(0, current - 1);
+        scrollToSlide(newIndex);
+      });
+
+      nextBtn.addEventListener('click', () => {
+        const current = getCurrentSlideIndex();
+        const newIndex = Math.min(3, current + 1);
+        scrollToSlide(newIndex);
+      });
+
+      // ---- 4) Закрытие открытки → показываем контур из сердечек ----
+      closeCardBtn.addEventListener('click', () => {
+        cardOverlay.classList.remove('visible');
+        setTimeout(() => {
+          photoHeart.classList.add('revealed');
+          buildHeartOutline();
+        }, 400);
+      });
+
+      // ---- 5) Построение контура из маленьких сердечек (адаптивное) ----
+      const dummyImages = [
+        'https://i.imgur.com/WuMQEfB.jpeg', 'https://picsum.photos/id/102/80/80',
+        'https://picsum.photos/id/103/80/80', 'https://picsum.photos/id/104/80/80',
+        'https://picsum.photos/id/106/80/80', 'https://picsum.photos/id/107/80/80',
+        'https://picsum.photos/id/108/80/80', 'https://picsum.photos/id/109/80/80',
+        'https://picsum.photos/id/110/80/80', 'https://picsum.photos/id/111/80/80',
+        'https://picsum.photos/id/112/80/80', 'https://picsum.photos/id/113/80/80',
+        'https://picsum.photos/id/114/80/80', 'https://picsum.photos/id/115/80/80',
+        'https://picsum.photos/id/116/80/80', 'https://picsum.photos/id/117/80/80',
+        'https://picsum.photos/id/118/80/80', 'https://picsum.photos/id/119/80/80',
+        'https://picsum.photos/id/120/80/80', 'https://picsum.photos/id/121/80/80',
+        'https://picsum.photos/id/122/80/80', 'https://picsum.photos/id/123/80/80',
+        'https://picsum.photos/id/124/80/80', 'https://picsum.photos/id/125/80/80'
+      ];
+
+      function buildHeartOutline() {
+        heartCollage.innerHTML = '';
+        const containerSize = heartCollage.clientWidth || 300; // fallback, если вдруг 0
+        if (containerSize === 0) return;
+
+        const centerX = containerSize / 2;
+        const centerY = containerSize / 2;
+        const scale = containerSize / 3.1; // масштаб для заполнения контура
+
+        // Количество элементов можно адаптировать к размеру
+        const totalPoints = Math.floor(containerSize / 7); // примерно 70 на 500px
+        const positions = [];
+        for (let i = 0; i < totalPoints; i++) {
+          const t = (i / totalPoints) * 2 * Math.PI;
+          const x = 16 * Math.pow(Math.sin(t), 3);
+          const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+          const itemHalfSize = containerSize / 16; // половина размера элемента
+          positions.push({
+            left: centerX + (x * scale / 16) - itemHalfSize,
+            top: centerY - (y * scale / 16) - itemHalfSize
+          });
+        }
+
+        const itemDimensions = containerSize / 12; // размер маленького сердечка
+        const shuffled = dummyImages.sort(() => Math.random() - 0.5);
+
+        positions.forEach((pos, idx) => {
+          const item = document.createElement('div');
+          item.className = 'collage-item';
+          item.style.width = itemDimensions + 'px';
+          item.style.height = itemDimensions + 'px';
+          item.style.left = pos.left + 'px';
+          item.style.top = pos.top + 'px';
+          item.style.backgroundImage = `url(${shuffled[idx % shuffled.length]})`;
+          heartCollage.appendChild(item);
+
+          setTimeout(() => {
+            item.classList.add('assembled');
+          }, idx * 15 + 50);
+        });
+      }
+
+      // Перестраиваем при ресайзе, если коллаж показан
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        if (photoHeart.classList.contains('revealed')) {
+          clearTimeout(resizeTimeout);
+          resizeTimeout = setTimeout(buildHeartOutline, 200);
+        }
+      });
+
+      // ---- 6) Кнопка музыки ----
+      musicToggle.addEventListener('click', () => {
+        if (bgMusic.paused) {
+          bgMusic.play();
+          musicToggle.textContent = '🔊';
+        } else {
+          bgMusic.pause();
+          musicToggle.textContent = '🔇';
+        }
+      });
+
+    })();
+    </script>
+</body>
+</html>
